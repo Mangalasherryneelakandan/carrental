@@ -8,39 +8,56 @@ class BookedVehiclesPage extends StatefulWidget {
 
 class _BookedVehiclesPageState extends State<BookedVehiclesPage> {
   final TextEditingController _phoneController = TextEditingController();
-  List<DocumentSnapshot> _bookedVehicles = [];
+  List<Map<String, dynamic>> _bookedVehicleDetails = [];
   bool _isLoading = false;
 
   Future<void> _fetchBookedVehicles() async {
     setState(() {
       _isLoading = true;
-      _bookedVehicles.clear();
+      _bookedVehicleDetails.clear();
     });
 
     String phone = _phoneController.text;
 
     try {
-      // Fetch booked vehicles from Firestore where the customer's phone number matches
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('customers') // Assuming you have a collection for bookings
+      // Fetch customer booking info based on phone number
+      QuerySnapshot customerSnapshot = await FirebaseFirestore.instance
+          .collection('customers') // Ensure this is the correct collection
           .where('phone', isEqualTo: phone) // Match the phone number
           .get();
 
-      if (querySnapshot.docs.isEmpty) {
-        // Show a message if no vehicles are found
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No bookings found for this phone number.')),
-        );
-      }
+      if (customerSnapshot.docs.isNotEmpty) {
+        for (var customerDoc in customerSnapshot.docs) {
+          var customerData = customerDoc.data() as Map<String, dynamic>;
+          String vehicleId = customerData['vehicleId'] ?? '';
 
-      setState(() {
-        _bookedVehicles = querySnapshot.docs; // Store the results
-      });
+          // Fetch vehicle details using vehicleId
+          if (vehicleId.isNotEmpty) {
+            DocumentSnapshot vehicleSnapshot = await FirebaseFirestore.instance
+                .collection('rental') // Ensure this is the correct collection for vehicles
+                .doc(vehicleId) // Fetch the vehicle using the document ID (vehicleId)
+                .get();
+
+            if (vehicleSnapshot.exists) {
+              var vehicleData = vehicleSnapshot.data() as Map<String, dynamic>;
+
+              // Combine customer and vehicle data
+              _bookedVehicleDetails.add({
+                'vehicleId': vehicleId,
+                'vehicleName': vehicleData['name'] ?? 'Unknown',
+                'customerName': customerData['name'] ?? 'Unknown',
+                'customerPhone': customerData['phone'] ?? 'Unknown',
+              });
+            } else {
+              print('Vehicle not found for vehicleId: $vehicleId');
+            }
+          }
+        }
+      } else {
+        print('No bookings found for this phone number.');
+      }
     } catch (e) {
       print('Error fetching booked vehicles: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching booked vehicles: $e')),
-      );
     } finally {
       setState(() {
         _isLoading = false; // Stop loading
@@ -74,13 +91,14 @@ class _BookedVehiclesPageState extends State<BookedVehiclesPage> {
             if (_isLoading) CircularProgressIndicator(),
             Expanded(
               child: ListView.builder(
-                itemCount: _bookedVehicles.length,
+                itemCount: _bookedVehicleDetails.length,
                 itemBuilder: (context, index) {
-                  var bookingData = _bookedVehicles[index].data() as Map<String, dynamic>;
-                  String vehicleId = bookingData['vehicleId'] ?? 'Unknown';
-                  String vehicleName = bookingData['vehicleName'] ?? 'Unknown';
-                  String customerName = bookingData['customerName'] ?? 'Unknown';
-                  String customerPhone = bookingData['phone'] ?? 'Unknown';
+                  var bookingData = _bookedVehicleDetails[index];
+
+                  String vehicleId = bookingData['vehicleId'];
+                  String vehicleName = bookingData['vehicleName'];
+                  String customerName = bookingData['customerName'];
+                  String customerPhone = bookingData['customerPhone'];
 
                   return Card(
                     margin: EdgeInsets.symmetric(vertical: 5),
