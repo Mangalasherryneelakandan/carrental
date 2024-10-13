@@ -1,3 +1,4 @@
+import 'package:car_rental/pages/booked.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:html' as html;
@@ -105,6 +106,21 @@ class _VehicleInputPageState extends State<VehicleInputPage> {
                     textStyle: TextStyle(fontSize: 16),
                   ),
                 ),
+                SizedBox(height: 20), // Add spacing before the next button
+                ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                BookedVehiclesPage()), // Navigate to booked vehicles page
+                      );
+                    },
+                    child: Text('View Booked Vehicles'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          Colors.green, // Customize button color as desired
+                    )),
               ],
             ),
           ),

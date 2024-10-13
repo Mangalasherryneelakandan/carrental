@@ -1,3 +1,4 @@
+import 'package:car_rental/pages/cust.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
  // Ensure this import points to your CustomerInputPage
@@ -78,19 +79,4 @@ class VehicleDetailPage extends StatelessWidget {
   }
 }
 
-// Example of a simple Customer Input Page
-class CustomerInputPage extends StatelessWidget {
-  final String vehicleId;
 
-  const CustomerInputPage({Key? key, required this.vehicleId}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Customer Input')),
-      body: Center(
-        child: Text('Input details for vehicle ID: $vehicleId'),
-      ),
-    );
-  }
-}

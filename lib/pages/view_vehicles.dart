@@ -1,7 +1,6 @@
 import 'package:car_rental/pages/vehidetail.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
- // Ensure this import points to your VehicleDetailPage
 
 class VehicleListPage extends StatelessWidget {
   @override
@@ -21,7 +20,13 @@ class VehicleListPage extends StatelessWidget {
             return Center(child: Text('No vehicles available.'));
           }
 
-          return ListView.builder(
+          return GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2, // Number of columns
+              childAspectRatio: 1, // Adjust to change the block size
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+            ),
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, index) {
               final vehicleData = snapshot.data!.docs[index];
@@ -55,7 +60,10 @@ class VehicleListPage extends StatelessWidget {
                         ),
                         SizedBox(height: 5),
                         imageUrl != null && imageUrl.isNotEmpty
-                            ? Image.network(imageUrl) // Display the image using the URL
+                            ? Image.network(
+                                imageUrl, // Display the image using the URL
+                                fit: BoxFit.cover, // Fit the image to cover the area
+                              )
                             : Text('No image available'),
                       ],
                     ),
