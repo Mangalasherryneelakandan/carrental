@@ -1,7 +1,7 @@
-import 'package:car_rental/forms/mainput.dart'; // Your input widget
-import 'package:car_rental/needed/slideshow.dart'; // Your slideshow widget
+import 'package:car_rental/pages/vehiinput.dart';
+import 'package:car_rental/pages/view_vehicles.dart';
 import 'package:flutter/material.dart';
-import 'package:car_rental/needed/navbar.dart'; // Your navigation bar
+
 
 class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key});
@@ -11,30 +11,24 @@ class MyHomePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       body: SafeArea(
-        child: Column( // Use Column to include navigation bar at the top
+        child: Column(
           children: <Widget>[
-            navigationBar(), // Navigation bar at the top
-            
+            // Add the input form
             Expanded(
-              child: Row( // Use Row to align input box and slideshow horizontally
-                children: <Widget>[
-                  // Left side: Input Box
-                  Expanded(
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: InputBox(), // Your input box widget
-                      ),
-                    ),
-                  ),
+              child: VehicleInputPage(), // Your vehicle input form
+            ),
 
-                  // Right side: Slideshow
-                  SizedBox(
-                    width: 300, // Set the width for the slideshow
-                    child: SlideshowWidget(), // Your slideshow widget
+            // Add a button to go to the view page
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => VehicleListPage(), // View page route
                   ),
-                ],
-              ),
+                );
+              },
+              child: Text('View Vehicles'),
             ),
           ],
         ),
