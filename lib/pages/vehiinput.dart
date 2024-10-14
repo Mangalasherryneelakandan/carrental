@@ -1,36 +1,47 @@
-import 'package:car_rental/pages/booked.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:html' as html;
 
 class VehicleInputPage extends StatefulWidget {
+  const VehicleInputPage({super.key});
+
   @override
   _VehicleInputPageState createState() => _VehicleInputPageState();
 }
 
 class _VehicleInputPageState extends State<VehicleInputPage> {
-  final TextEditingController _vehicleIdController = TextEditingController();
   final TextEditingController _vehicleNameController = TextEditingController();
-  String? _imageUrl;
+  final TextEditingController _rentAmountController = TextEditingController();
+  List<String?> _imageUrls = [null, null, null]; // List to store 3 image URLs
+  String? _selectedCompany;
 
   Future<void> _addVehicle() async {
-    if (_vehicleIdController.text.isNotEmpty &&
-        _vehicleNameController.text.isNotEmpty) {
-      FirebaseFirestore.instance.collection('rental').add({
-        'id': int.parse(_vehicleIdController.text),
+    if (_vehicleNameController.text.isNotEmpty &&
+        _imageUrls.every((url) => url != null && url.isNotEmpty) &&
+        _selectedCompany != null &&
+        _rentAmountController.text.isNotEmpty) {
+      await FirebaseFirestore.instance.collection('rental').add({
         'name': _vehicleNameController.text,
-        'imageUrl': _imageUrl ?? ''
+        'imageUrls': _imageUrls, // Store list of image URLs
+        'available': true, // Set available to true
+        'rentAmount': double.tryParse(_rentAmountController.text) ?? 0.0,
+        'company': _selectedCompany, // Add company field
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Vehicle added successfully')),
       );
+
+      // Clear input fields
+      _vehicleNameController.clear();
+      _rentAmountController.clear();
+      _imageUrls = [null, null, null];
+      setState(() {});
     }
   }
 
-  Future<void> _pickImage() async {
-    final html.FileUploadInputElement uploadInput =
-        html.FileUploadInputElement();
+  Future<void> _pickImage(int index) async {
+    final html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
     uploadInput.accept = 'image/*';
     uploadInput.click();
 
@@ -42,7 +53,7 @@ class _VehicleInputPageState extends State<VehicleInputPage> {
 
         reader.onLoadEnd.listen((e) async {
           setState(() {
-            _imageUrl = reader.result as String?;
+            _imageUrls[index] = reader.result as String?;
           });
         });
       }
@@ -54,7 +65,7 @@ class _VehicleInputPageState extends State<VehicleInputPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Add New Vehicle'),
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: Colors.black54,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -64,68 +75,100 @@ class _VehicleInputPageState extends State<VehicleInputPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 SizedBox(height: 20),
-                TextField(
-                  controller: _vehicleIdController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: 'Vehicle ID',
-                    border: OutlineInputBorder(),
-                  ),
+                DropdownButton<String>(
+                  value: _selectedCompany,
+                  hint: Text('Select Company', style: TextStyle(color: Colors.white)),
+                  dropdownColor: Colors.black54,
+                  items: <String>[
+                    'Toyota',
+                    'Honda',
+                    'Ford',
+                    'BMW',
+                    'Mercedes',
+                    'Audi',
+                    'Volkswagen',
+                  ].map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value, style: TextStyle(color: Colors.white)),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
+                    setState(() {
+                      _selectedCompany = newValue;
+                    });
+                  },
                 ),
                 SizedBox(height: 20),
                 TextField(
                   controller: _vehicleNameController,
                   decoration: InputDecoration(
                     labelText: 'Vehicle Name',
+                    labelStyle: TextStyle(color: Colors.white),
                     border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white54),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.yellow),
+                    ),
                   ),
+                  style: TextStyle(color: Colors.white),
                 ),
                 SizedBox(height: 20),
-                ElevatedButton.icon(
-                  onPressed: _pickImage,
-                  icon: Icon(Icons.image, color: Colors.white),
-                  label: Text(
-                    'Add Image',
-                    style: TextStyle(color: Colors.white),
+                TextField(
+                  controller: _rentAmountController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Rent Amount (per day)',
+                    labelStyle: TextStyle(color: Colors.white),
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white54),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.yellow),
+                    ),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.yellow[700], // Button color
-                  ),
+                  style: TextStyle(color: Colors.white),
                 ),
                 SizedBox(height: 20),
-                _imageUrl != null
-                    ? Image.network(_imageUrl!)
-                    : Text('No image selected'),
-                SizedBox(height: 20),
+
+                // Buttons to upload 3 images
+                for (int i = 0; i < 3; i++) ...[
+                  ElevatedButton.icon(
+                    onPressed: () => _pickImage(i),
+                    icon: Icon(Icons.image, color: Colors.white),
+                    label: Text(
+                      'Add Image ${i + 1}',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.yellow[700],
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  _imageUrls[i] != null
+                      ? Text('Image added successfully for Image ${i + 1}', style: TextStyle(color: Colors.green))
+                      : Text('No image selected for Image ${i + 1}', style: TextStyle(color: Colors.grey)),
+                  SizedBox(height: 20),
+                ],
+
                 ElevatedButton(
                   onPressed: _addVehicle,
-                  child: Text('Submit Vehicle'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blueGrey,
                     padding: EdgeInsets.symmetric(vertical: 15),
                     textStyle: TextStyle(fontSize: 16),
                   ),
+                  child: Text('Submit Vehicle'),
                 ),
-                SizedBox(height: 20), // Add spacing before the next button
-                ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                BookedVehiclesPage()), // Navigate to booked vehicles page
-                      );
-                    },
-                    child: Text('View Booked Vehicles'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          Colors.green, // Customize button color as desired
-                    )),
               ],
             ),
           ),
         ),
       ),
+      backgroundColor: Colors.black87,
     );
   }
 }

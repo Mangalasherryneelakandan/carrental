@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BookedVehiclesPage extends StatefulWidget {
+  const BookedVehiclesPage({super.key});
+
   @override
   _BookedVehiclesPageState createState() => _BookedVehiclesPageState();
 }
 
 class _BookedVehiclesPageState extends State<BookedVehiclesPage> {
   final TextEditingController _phoneController = TextEditingController();
-  List<Map<String, dynamic>> _bookedVehicleDetails = [];
+  final List<Map<String, dynamic>> _bookedVehicleDetails = [];
   bool _isLoading = false;
 
   Future<void> _fetchBookedVehicles() async {

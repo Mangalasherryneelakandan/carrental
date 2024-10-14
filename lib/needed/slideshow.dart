@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 
 class SlideshowWidget extends StatelessWidget {
+  const SlideshowWidget({super.key});
+
   @override
   Widget build(BuildContext context) {
     return ImageSlideshow(
@@ -10,6 +12,11 @@ class SlideshowWidget extends StatelessWidget {
       initialPage: 0,
       indicatorColor: Colors.blue,
       indicatorBackgroundColor: Colors.grey,
+      onPageChanged: (value) {
+        print('Page changed: $value');
+      },
+      autoPlayInterval: 3000, // Set the interval for autoplay
+      isLoop: true,
       children: [
         Image.asset(
           'assets/images/IMG_3041.JPG',
@@ -23,12 +30,7 @@ class SlideshowWidget extends StatelessWidget {
           'assets/images/IMG_3058.JPG',
           fit: BoxFit.cover,
         ),
-      ],
-      onPageChanged: (value) {
-        print('Page changed: $value');
-      },
-      autoPlayInterval: 3000, // Set the interval for autoplay
-      isLoop: true, // Enable looping
+      ], // Enable looping
     );
   }
 }

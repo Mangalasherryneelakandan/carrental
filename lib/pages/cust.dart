@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class CustomerInputPage extends StatefulWidget {
   final String vehicleId;
 
-  const CustomerInputPage({Key? key, required this.vehicleId}) : super(key: key);
+  const CustomerInputPage({super.key, required this.vehicleId});
 
   @override
   _CustomerInputPageState createState() => _CustomerInputPageState();
