@@ -22,16 +22,16 @@ class _BookedVehiclesPageState extends State<BookedVehiclesPage> {
     String phone = _phoneController.text;
 
     try {
-      // Fetch customer booking info based on phone number
-      QuerySnapshot customerSnapshot = await FirebaseFirestore.instance
-          .collection('customers') // Ensure this is the correct collection
+      // Fetch rented info based on phone number
+      QuerySnapshot rentedSnapshot = await FirebaseFirestore.instance
+          .collection('rented') // Fetch from 'rented' collection
           .where('phone', isEqualTo: phone) // Match the phone number
           .get();
 
-      if (customerSnapshot.docs.isNotEmpty) {
-        for (var customerDoc in customerSnapshot.docs) {
-          var customerData = customerDoc.data() as Map<String, dynamic>;
-          String vehicleId = customerData['vehicleId'] ?? '';
+      if (rentedSnapshot.docs.isNotEmpty) {
+        for (var rentedDoc in rentedSnapshot.docs) {
+          var rentedData = rentedDoc.data() as Map<String, dynamic>;
+          String vehicleId = rentedData['vehicleId'] ?? '';
 
           // Fetch vehicle details using vehicleId
           if (vehicleId.isNotEmpty) {
@@ -43,12 +43,17 @@ class _BookedVehiclesPageState extends State<BookedVehiclesPage> {
             if (vehicleSnapshot.exists) {
               var vehicleData = vehicleSnapshot.data() as Map<String, dynamic>;
 
-              // Combine customer and vehicle data
+              // Combine rented data and vehicle data, including imageUrl
               _bookedVehicleDetails.add({
                 'vehicleId': vehicleId,
                 'vehicleName': vehicleData['name'] ?? 'Unknown',
-                'customerName': customerData['name'] ?? 'Unknown',
-                'customerPhone': customerData['phone'] ?? 'Unknown',
+                'vehicleImageUrl': vehicleData['imageUrl'] ?? '', // Fetching image URL
+                'customerName': rentedData['customerName'] ?? 'Unknown',
+                'customerPhone': rentedData['phone'] ?? 'Unknown',
+                'startDate': rentedData['startDate']?.toDate(),
+                'endDate': rentedData['endDate']?.toDate(),
+                'numberOfDays': rentedData['numberOfDays'],
+                'totalAmount': rentedData['totalAmount'],
               });
             } else {
               print('Vehicle not found for vehicleId: $vehicleId');
@@ -101,10 +106,23 @@ class _BookedVehiclesPageState extends State<BookedVehiclesPage> {
                   String vehicleName = bookingData['vehicleName'];
                   String customerName = bookingData['customerName'];
                   String customerPhone = bookingData['customerPhone'];
+                  DateTime? startDate = bookingData['startDate'];
+                  DateTime? endDate = bookingData['endDate'];
+                  int numberOfDays = bookingData['numberOfDays'];
+                  double totalAmount = bookingData['totalAmount'];
+                  String vehicleImageUrl = bookingData['vehicleImageUrl'];
 
                   return Card(
                     margin: EdgeInsets.symmetric(vertical: 5),
                     child: ListTile(
+                      leading: vehicleImageUrl.isNotEmpty
+                          ? Image.network(
+                              vehicleImageUrl,
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.cover,
+                            )
+                          : Icon(Icons.directions_car), // Placeholder if no image
                       title: Text('Vehicle Name: $vehicleName'),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,6 +130,12 @@ class _BookedVehiclesPageState extends State<BookedVehiclesPage> {
                           Text('Vehicle ID: $vehicleId'),
                           Text('Customer Name: $customerName'),
                           Text('Customer Phone: $customerPhone'),
+                          if (startDate != null)
+                            Text('Start Date: ${startDate.toLocal().toString().split(' ')[0]}'),
+                          if (endDate != null)
+                            Text('End Date: ${endDate.toLocal().toString().split(' ')[0]}'),
+                          Text('Number of Days: $numberOfDays'),
+                          Text('Total Amount: ₹${totalAmount.toStringAsFixed(2)}'),
                         ],
                       ),
                     ),

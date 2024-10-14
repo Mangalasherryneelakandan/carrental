@@ -1,6 +1,6 @@
+import 'package:car_rental/pages/cust.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:car_rental/pages/cust.dart';
 
 class VehicleDetailPage extends StatelessWidget {
   final String vehicleId;
@@ -68,12 +68,20 @@ class VehicleDetailPage extends StatelessWidget {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CustomerInputPage(vehicleId: vehicleId),
-                      ),
-                    );
+                    print('Booking vehicle with ID: $vehicleId'); // Debugging the vehicle ID
+
+                    if (vehicleId.isNotEmpty) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CustomerInputPage(vehicleId: vehicleId),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Vehicle ID is missing!')),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blueGrey,

@@ -14,11 +14,13 @@ class _VehicleInputPageState extends State<VehicleInputPage> {
   final TextEditingController _rentAmountController = TextEditingController();
   List<String?> _imageUrls = [null, null, null]; // List to store 3 image URLs
   String? _selectedCompany;
+  String? _selectedType; // New variable for vehicle type selection
 
   Future<void> _addVehicle() async {
     if (_vehicleNameController.text.isNotEmpty &&
         _imageUrls.every((url) => url != null && url.isNotEmpty) &&
         _selectedCompany != null &&
+        _selectedType != null && // Check if type is selected
         _rentAmountController.text.isNotEmpty) {
       await FirebaseFirestore.instance.collection('rental').add({
         'name': _vehicleNameController.text,
@@ -26,6 +28,7 @@ class _VehicleInputPageState extends State<VehicleInputPage> {
         'available': true, // Set available to true
         'rentAmount': double.tryParse(_rentAmountController.text) ?? 0.0,
         'company': _selectedCompany, // Add company field
+        'type': _selectedType, // Add type field
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -36,6 +39,7 @@ class _VehicleInputPageState extends State<VehicleInputPage> {
       _vehicleNameController.clear();
       _rentAmountController.clear();
       _imageUrls = [null, null, null];
+      _selectedType = null; // Clear selected type
       setState(() {});
     }
   }
@@ -99,6 +103,33 @@ class _VehicleInputPageState extends State<VehicleInputPage> {
                     });
                   },
                 ),
+                SizedBox(height: 20),
+
+                // New Dropdown for Vehicle Type
+                DropdownButton<String>(
+                  value: _selectedType,
+                  hint: Text('Select Vehicle Type', style: TextStyle(color: Colors.white)),
+                  dropdownColor: Colors.black54,
+                  items: <String>[
+                    'Sedan',
+                    'SUV',
+                    'Hatchback',
+                    'Truck',
+                    'Convertible',
+                    'Coupe',
+                  ].map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value, style: TextStyle(color: Colors.white)),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
+                    setState(() {
+                      _selectedType = newValue;
+                    });
+                  },
+                ),
+
                 SizedBox(height: 20),
                 TextField(
                   controller: _vehicleNameController,
