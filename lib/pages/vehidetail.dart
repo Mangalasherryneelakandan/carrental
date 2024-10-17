@@ -12,7 +12,7 @@ class VehicleDetailPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Vehicle Details'),
-        backgroundColor: Colors.black54,
+        backgroundColor: Colors.blueAccent,
       ),
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance.collection('rental').doc(vehicleId).snapshots(),
@@ -22,7 +22,7 @@ class VehicleDetailPage extends StatelessWidget {
           }
 
           if (!snapshot.data!.exists) {
-            return const Center(child: Text('Vehicle not found.', style: TextStyle(color: Colors.white)));
+            return const Center(child: Text('Vehicle not found.'));
           }
 
           // Extract vehicle details
@@ -30,6 +30,7 @@ class VehicleDetailPage extends StatelessWidget {
           String vehicleName = vehicleDetails['name'] ?? 'Unknown';
           List<dynamic> imageUrls = vehicleDetails['imageUrls'] ?? [];
           double rentAmount = vehicleDetails['rentAmount'] ?? 0.0;
+          String description = vehicleDetails['description'] ?? 'No description available';
 
           return Padding(
             padding: const EdgeInsets.all(16.0),
@@ -38,7 +39,7 @@ class VehicleDetailPage extends StatelessWidget {
               children: [
                 // Vehicle Image Carousel
                 SizedBox(
-                  height: 250,
+                  height: 350, // Increased height for the image
                   child: PageView.builder(
                     itemCount: imageUrls.length,
                     itemBuilder: (context, index) {
@@ -55,21 +56,33 @@ class VehicleDetailPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16), // Space between image and details
+
                 // Vehicle Details
                 Text(
                   'Vehicle Name: $vehicleName',
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Rent: ₹$rentAmount per day', // Display rent with rupee symbol
-                  style: const TextStyle(fontSize: 20, color: Colors.greenAccent),
+                  style: const TextStyle(fontSize: 20, color: Colors.blueAccent),
                 ),
                 const SizedBox(height: 16),
+
+                // Vehicle Description
+                Text(
+                  'Description:',
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  description, // Display the vehicle description
+                  style: const TextStyle(fontSize: 16, color: Colors.black54),
+                ),
+                const SizedBox(height: 16),
+
                 ElevatedButton(
                   onPressed: () {
-                    print('Booking vehicle with ID: $vehicleId'); // Debugging the vehicle ID
-
                     if (vehicleId.isNotEmpty) {
                       Navigator.push(
                         context,
@@ -79,14 +92,14 @@ class VehicleDetailPage extends StatelessWidget {
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Vehicle ID is missing!')),
+                        const SnackBar(content: Text('Vehicle ID is missing!')),
                       );
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueGrey,
-                    padding: EdgeInsets.symmetric(vertical: 15),
-                    textStyle: TextStyle(fontSize: 16),
+                    backgroundColor: Colors.blueAccent,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    textStyle: const TextStyle(fontSize: 16),
                   ),
                   child: const Text('Book This Vehicle'),
                 ),
@@ -95,7 +108,7 @@ class VehicleDetailPage extends StatelessWidget {
           );
         },
       ),
-      backgroundColor: Colors.black87,
+      backgroundColor: Colors.white, // Light mode background
     );
   }
 }

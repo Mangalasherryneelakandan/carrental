@@ -1,3 +1,4 @@
+import 'package:car_rental/pages/payment.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -19,23 +20,16 @@ class _CustomerInputPageState extends State<CustomerInputPage> {
   int numberOfDays = 0;
   double totalAmount = 0.0;
   double? amountPerDay;
+  String? customerId; // Add customerId variable
 
   @override
   void initState() {
     super.initState();
-    print('Vehicle ID passed to CustomerInputPage: ${widget.vehicleId}');
     fetchVehicleData();
   }
 
   // Fetch the amount from the 'rental' database for the selected vehicle
   Future<void> fetchVehicleData() async {
-    if (widget.vehicleId.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid vehicle ID.')),
-      );
-      return;
-    }
-
     try {
       DocumentSnapshot vehicleDoc = await FirebaseFirestore.instance
           .collection('rental')
@@ -52,7 +46,6 @@ class _CustomerInputPageState extends State<CustomerInputPage> {
         );
       }
     } catch (e) {
-      print('Error fetching vehicle data: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to load vehicle details: $e')),
       );
@@ -79,13 +72,13 @@ class _CustomerInputPageState extends State<CustomerInputPage> {
         endDate == null ||
         amountPerDay == null) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Please fill all fields.')));
+          .showSnackBar(const SnackBar(content: Text('Please fill all fields.')));
       return;
     }
 
-    // Create a new customer record in the "rented" collection
     try {
-      await FirebaseFirestore.instance.collection('rented').add({
+      // Create a new customer record in the "rented" collection
+      DocumentReference rentedRef = await FirebaseFirestore.instance.collection('rented').add({
         'vehicleId': widget.vehicleId,
         'customerName': nameController.text,
         'phone': phoneController.text,
@@ -94,12 +87,24 @@ class _CustomerInputPageState extends State<CustomerInputPage> {
         'amountPerDay': amountPerDay,
         'numberOfDays': numberOfDays,
         'totalAmount': totalAmount,
+        'paymentStatus': 'Pending', // Initial payment status
       });
 
-      // Navigate back after submission
-      Navigator.pop(context);
+      // Retrieve the newly created customer document ID
+      customerId = rentedRef.id;
+
+      // Navigate to the Payment Confirmation Page after successful submission
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PaymentConfirmationPage(
+            customerId: customerId!, // Pass the newly created customerId
+            vehicleId: widget.vehicleId,
+            totalAmount: totalAmount,
+          ),
+        ),
+      );
     } catch (e) {
-      print('Error submitting data: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to submit data: $e')),
       );
@@ -124,7 +129,7 @@ class _CustomerInputPageState extends State<CustomerInputPage> {
               decoration: InputDecoration(labelText: 'Phone Number'),
               keyboardType: TextInputType.phone,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text('Start Date: ${startDate != null ? DateFormat('yyyy-MM-dd').format(startDate!) : 'Not Selected'}'),
             TextButton(
               onPressed: () async {
@@ -143,7 +148,7 @@ class _CustomerInputPageState extends State<CustomerInputPage> {
               },
               child: const Text('Select Start Date'),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text('End Date: ${endDate != null ? DateFormat('yyyy-MM-dd').format(endDate!) : 'Not Selected'}'),
             TextButton(
               onPressed: () async {
@@ -162,12 +167,12 @@ class _CustomerInputPageState extends State<CustomerInputPage> {
               },
               child: const Text('Select End Date'),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             if (amountPerDay != null)
               Text('Amount per Day: ₹${amountPerDay!.toStringAsFixed(2)}'),
             Text('Number of Days: $numberOfDays'),
             Text('Total Amount: ₹${totalAmount.toStringAsFixed(2)}'),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: submitData,
               child: const Text('Confirm Payment'),

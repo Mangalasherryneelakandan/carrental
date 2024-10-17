@@ -12,23 +12,26 @@ class VehicleInputPage extends StatefulWidget {
 class _VehicleInputPageState extends State<VehicleInputPage> {
   final TextEditingController _vehicleNameController = TextEditingController();
   final TextEditingController _rentAmountController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController(); // New description controller
   List<String?> _imageUrls = [null, null, null]; // List to store 3 image URLs
   String? _selectedCompany;
-  String? _selectedType; // New variable for vehicle type selection
+  String? _selectedType;
 
   Future<void> _addVehicle() async {
     if (_vehicleNameController.text.isNotEmpty &&
         _imageUrls.every((url) => url != null && url.isNotEmpty) &&
         _selectedCompany != null &&
-        _selectedType != null && // Check if type is selected
-        _rentAmountController.text.isNotEmpty) {
+        _selectedType != null &&
+        _rentAmountController.text.isNotEmpty &&
+        _descriptionController.text.isNotEmpty) { // Check if description is provided
       await FirebaseFirestore.instance.collection('rental').add({
         'name': _vehicleNameController.text,
         'imageUrls': _imageUrls, // Store list of image URLs
         'available': true, // Set available to true
         'rentAmount': double.tryParse(_rentAmountController.text) ?? 0.0,
-        'company': _selectedCompany, // Add company field
-        'type': _selectedType, // Add type field
+        'company': _selectedCompany,
+        'type': _selectedType,
+        'description': _descriptionController.text, // Add description field
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -38,8 +41,9 @@ class _VehicleInputPageState extends State<VehicleInputPage> {
       // Clear input fields
       _vehicleNameController.clear();
       _rentAmountController.clear();
+      _descriptionController.clear(); // Clear description
       _imageUrls = [null, null, null];
-      _selectedType = null; // Clear selected type
+      _selectedType = null;
       setState(() {});
     }
   }
@@ -105,7 +109,6 @@ class _VehicleInputPageState extends State<VehicleInputPage> {
                 ),
                 SizedBox(height: 20),
 
-                // New Dropdown for Vehicle Type
                 DropdownButton<String>(
                   value: _selectedType,
                   hint: Text('Select Vehicle Type', style: TextStyle(color: Colors.white)),
@@ -152,6 +155,25 @@ class _VehicleInputPageState extends State<VehicleInputPage> {
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     labelText: 'Rent Amount (per day)',
+                    labelStyle: TextStyle(color: Colors.white),
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white54),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.yellow),
+                    ),
+                  ),
+                  style: TextStyle(color: Colors.white),
+                ),
+                SizedBox(height: 20),
+
+                // New TextField for Description
+                TextField(
+                  controller: _descriptionController,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    labelText: 'Vehicle Description',
                     labelStyle: TextStyle(color: Colors.white),
                     border: OutlineInputBorder(),
                     enabledBorder: OutlineInputBorder(
