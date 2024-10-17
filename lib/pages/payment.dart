@@ -75,59 +75,82 @@ class _PaymentConfirmationPageState extends State<PaymentConfirmationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Confirm Payment'),
-        backgroundColor: Colors.teal,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Card(
-          elevation: 5,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Payment Details',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.teal),
-                ),
-                const SizedBox(height: 20),
-                Text('Customer ID: ${widget.customerId}', style: const TextStyle(fontSize: 16)),
-                const SizedBox(height: 10),
-                Text('Vehicle ID: ${widget.vehicleId}', style: const TextStyle(fontSize: 16)),
-                const SizedBox(height: 10),
-                Text('Total Amount: ₹${widget.totalAmount.toStringAsFixed(2)}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: amountController,
-                  decoration: InputDecoration(
-                    labelText: 'Enter Total Amount',
-                    errorText: errorMessage.isNotEmpty ? errorMessage : null,
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 30),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () => confirmPayment(context),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                      backgroundColor: Colors.teal,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: const Text('Confirm Payment', style: TextStyle(fontSize: 16)),
-                  ),
-                ),
-              ],
+      body: Stack(
+        children: [
+          // Background image
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/black-wallpaper-28.jpg'), // Replace with your image path
+                fit: BoxFit.cover,
+              ),
             ),
           ),
-        ),
+          // Dark overlay for better text visibility
+          Container(
+            color: Colors.black.withOpacity(0.5), // Dark overlay
+          ),
+          // Main content
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Card(
+              elevation: 5,
+              color: Colors.grey[850], // Dark card background
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Payment Details',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.tealAccent), // Change text color to match theme
+                    ),
+                    const SizedBox(height: 20),
+                    Text('Customer ID: ${widget.customerId}', style: const TextStyle(fontSize: 16, color: Colors.white)), // White text color
+                    const SizedBox(height: 10),
+                    Text('Vehicle ID: ${widget.vehicleId}', style: const TextStyle(fontSize: 16, color: Colors.white)), // White text color
+                    const SizedBox(height: 10),
+                    Text('Total Amount: ₹${widget.totalAmount.toStringAsFixed(2)}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)), // White text color
+                    const SizedBox(height: 20),
+                    TextField(
+                      controller: amountController,
+                      decoration: InputDecoration(
+                        labelText: 'Enter Total Amount',
+                        labelStyle: TextStyle(color: Colors.white), // White label text
+                        errorText: errorMessage.isNotEmpty ? errorMessage : null,
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.tealAccent), // Teal accent border for enabled state
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.tealAccent), // Teal accent border for focused state
+                        ),
+                      ),
+                      style: const TextStyle(color: Colors.white), // White text color
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 30),
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: () => confirmPayment(context),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                          backgroundColor: Colors.tealAccent, // Button color
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: const Text('Confirm Payment', style: TextStyle(fontSize: 16)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

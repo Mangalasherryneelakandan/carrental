@@ -20,7 +20,6 @@ class _CustomerInputPageState extends State<CustomerInputPage> {
   int numberOfDays = 0;
   double totalAmount = 0.0;
   double? amountPerDay;
-  String? customerId; // Add customerId variable
 
   @override
   void initState() {
@@ -90,15 +89,12 @@ class _CustomerInputPageState extends State<CustomerInputPage> {
         'paymentStatus': 'Pending', // Initial payment status
       });
 
-      // Retrieve the newly created customer document ID
-      customerId = rentedRef.id;
-
       // Navigate to the Payment Confirmation Page after successful submission
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => PaymentConfirmationPage(
-            customerId: customerId!, // Pass the newly created customerId
+            customerId: rentedRef.id, // Pass the newly created customerId
             vehicleId: widget.vehicleId,
             totalAmount: totalAmount,
           ),
@@ -114,70 +110,119 @@ class _CustomerInputPageState extends State<CustomerInputPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Customer Input')),
+      appBar: AppBar(
+        title: const Text('Customer Input'),
+        backgroundColor: Colors.teal[800], // Darker AppBar color
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(labelText: 'Customer Name'),
+        child: SingleChildScrollView(
+          child: Card(
+            elevation: 8,
+            color: Colors.grey[850], // Dark card background
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-            TextField(
-              controller: phoneController,
-              decoration: InputDecoration(labelText: 'Phone Number'),
-              keyboardType: TextInputType.phone,
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      labelText: 'Customer Name',
+                      labelStyle: const TextStyle(color: Colors.teal),
+                      filled: true,
+                      fillColor: Colors.teal.withOpacity(0.1),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    style: const TextStyle(color: Colors.white), // Input text color
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: phoneController,
+                    decoration: InputDecoration(
+                      labelText: 'Phone Number',
+                      labelStyle: const TextStyle(color: Colors.teal),
+                      filled: true,
+                      fillColor: Colors.teal.withOpacity(0.1),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    keyboardType: TextInputType.phone,
+                    style: const TextStyle(color: Colors.white), // Input text color
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Start Date: ${startDate != null ? DateFormat('yyyy-MM-dd').format(startDate!) : 'Not Selected'}',
+                    style: const TextStyle(fontSize: 16, color: Colors.white), // Text color
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      final DateTime? picked = await showDatePicker(
+                        context: context,
+                        initialDate: startDate ?? DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2101),
+                      );
+                      if (picked != null) {
+                        setState(() {
+                          startDate = picked;
+                        });
+                        calculateTotalAmount(); // Recalculate total when start date changes
+                      }
+                    },
+                    child: const Text('Select Start Date', style: TextStyle(color: Colors.teal)),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'End Date: ${endDate != null ? DateFormat('yyyy-MM-dd').format(endDate!) : 'Not Selected'}',
+                    style: const TextStyle(fontSize: 16, color: Colors.white), // Text color
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      final DateTime? picked = await showDatePicker(
+                        context: context,
+                        initialDate: endDate ?? DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2101),
+                      );
+                      if (picked != null) {
+                        setState(() {
+                          endDate = picked;
+                        });
+                        calculateTotalAmount(); // Recalculate total when end date changes
+                      }
+                    },
+                    child: const Text('Select End Date', style: TextStyle(color: Colors.teal)),
+                  ),
+                  const SizedBox(height: 20),
+                  if (amountPerDay != null)
+                    Text('Amount per Day: ₹${amountPerDay!.toStringAsFixed(2)}', style: const TextStyle(fontSize: 16, color: Colors.white)), // Text color
+                  Text('Number of Days: $numberOfDays', style: const TextStyle(fontSize: 16, color: Colors.white)), // Text color
+                  Text('Total Amount: ₹${totalAmount.toStringAsFixed(2)}', style: const TextStyle(fontSize: 16, color: Colors.white)), // Text color
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: submitData,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      backgroundColor: Colors.teal, // Button color
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('Confirm Payment', style: TextStyle(fontSize: 16)),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 16),
-            Text('Start Date: ${startDate != null ? DateFormat('yyyy-MM-dd').format(startDate!) : 'Not Selected'}'),
-            TextButton(
-              onPressed: () async {
-                final DateTime? picked = await showDatePicker(
-                  context: context,
-                  initialDate: startDate ?? DateTime.now(),
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(2101),
-                );
-                if (picked != null) {
-                  setState(() {
-                    startDate = picked;
-                  });
-                  calculateTotalAmount(); // Recalculate total when start date changes
-                }
-              },
-              child: const Text('Select Start Date'),
-            ),
-            const SizedBox(height: 16),
-            Text('End Date: ${endDate != null ? DateFormat('yyyy-MM-dd').format(endDate!) : 'Not Selected'}'),
-            TextButton(
-              onPressed: () async {
-                final DateTime? picked = await showDatePicker(
-                  context: context,
-                  initialDate: endDate ?? DateTime.now(),
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(2101),
-                );
-                if (picked != null) {
-                  setState(() {
-                    endDate = picked;
-                  });
-                  calculateTotalAmount(); // Recalculate total when end date changes
-                }
-              },
-              child: const Text('Select End Date'),
-            ),
-            const SizedBox(height: 20),
-            if (amountPerDay != null)
-              Text('Amount per Day: ₹${amountPerDay!.toStringAsFixed(2)}'),
-            Text('Number of Days: $numberOfDays'),
-            Text('Total Amount: ₹${totalAmount.toStringAsFixed(2)}'),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: submitData,
-              child: const Text('Confirm Payment'),
-            ),
-          ],
+          ),
         ),
       ),
     );

@@ -77,6 +77,15 @@ class _BookedVehiclesPageState extends State<BookedVehiclesPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Booked Vehicles'),
+        backgroundColor: Colors.teal[800], // Darker AppBar color
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.home), // Icon for the home button
+            onPressed: () {
+              Navigator.popUntil(context, (route) => route.isFirst); // Navigate back to the homepage
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -87,15 +96,22 @@ class _BookedVehiclesPageState extends State<BookedVehiclesPage> {
               decoration: InputDecoration(
                 labelText: 'Enter Phone Number',
                 border: OutlineInputBorder(),
+                filled: true,
+                fillColor: Colors.grey[850], // Dark background for input field
+                labelStyle: const TextStyle(color: Colors.white),
               ),
+              style: const TextStyle(color: Colors.white), // Text color
             ),
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: _fetchBookedVehicles,
               child: const Text('Search'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal, // Button color
+              ),
             ),
             const SizedBox(height: 20),
-            if (_isLoading) CircularProgressIndicator(),
+            if (_isLoading) const CircularProgressIndicator(),
             Expanded(
               child: ListView.builder(
                 itemCount: _bookedVehicleDetails.length,
@@ -113,29 +129,39 @@ class _BookedVehiclesPageState extends State<BookedVehiclesPage> {
                   String vehicleImageUrl = bookingData['vehicleImageUrl'];
 
                   return Card(
-                    margin: EdgeInsets.symmetric(vertical: 5),
+                    color: Colors.grey[850], // Dark card color
+                    margin: const EdgeInsets.symmetric(vertical: 5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12), // Rounded corners
+                    ),
                     child: ListTile(
                       leading: vehicleImageUrl.isNotEmpty
-                          ? Image.network(
-                              vehicleImageUrl,
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.network(
+                                vehicleImageUrl,
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.cover,
+                              ),
                             )
-                          : Icon(Icons.directions_car), // Placeholder if no image
-                      title: Text('Vehicle Name: $vehicleName'),
+                          : const Icon(Icons.directions_car, color: Colors.white), // Placeholder if no image
+                      title: Text(
+                        'Vehicle Name: $vehicleName',
+                        style: const TextStyle(color: Colors.white), // Text color
+                      ),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Vehicle ID: $vehicleId'),
-                          Text('Customer Name: $customerName'),
-                          Text('Customer Phone: $customerPhone'),
+                          Text('Vehicle ID: $vehicleId', style: const TextStyle(color: Colors.white)),
+                          Text('Customer Name: $customerName', style: const TextStyle(color: Colors.white)),
+                          Text('Customer Phone: $customerPhone', style: const TextStyle(color: Colors.white)),
                           if (startDate != null)
-                            Text('Start Date: ${startDate.toLocal().toString().split(' ')[0]}'),
+                            Text('Start Date: ${startDate.toLocal().toString().split(' ')[0]}', style: const TextStyle(color: Colors.white)),
                           if (endDate != null)
-                            Text('End Date: ${endDate.toLocal().toString().split(' ')[0]}'),
-                          Text('Number of Days: $numberOfDays'),
-                          Text('Total Amount: ₹${totalAmount.toStringAsFixed(2)}'),
+                            Text('End Date: ${endDate.toLocal().toString().split(' ')[0]}', style: const TextStyle(color: Colors.white)),
+                          Text('Number of Days: $numberOfDays', style: const TextStyle(color: Colors.white)),
+                          Text('Total Amount: ₹${totalAmount.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white)),
                         ],
                       ),
                     ),

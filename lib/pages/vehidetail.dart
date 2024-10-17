@@ -12,7 +12,7 @@ class VehicleDetailPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Vehicle Details'),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Colors.black, // Dark background for the app bar
       ),
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance.collection('rental').doc(vehicleId).snapshots(),
@@ -49,7 +49,7 @@ class VehicleDetailPage extends StatelessWidget {
                               fit: BoxFit.cover,
                             )
                           : Container(
-                              color: Colors.grey[300],
+                              color: Colors.grey[700],
                               child: const Center(child: Text('No Image Available')),
                             );
                     },
@@ -60,24 +60,24 @@ class VehicleDetailPage extends StatelessWidget {
                 // Vehicle Details
                 Text(
                   'Vehicle Name: $vehicleName',
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white), // White text
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Rent: ₹$rentAmount per day', // Display rent with rupee symbol
-                  style: const TextStyle(fontSize: 20, color: Colors.blueAccent),
+                  style: const TextStyle(fontSize: 20, color: Colors.tealAccent), // Light accent color
                 ),
                 const SizedBox(height: 16),
 
                 // Vehicle Description
                 Text(
                   'Description:',
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white), // White text
                 ),
                 const SizedBox(height: 8),
                 Text(
                   description, // Display the vehicle description
-                  style: const TextStyle(fontSize: 16, color: Colors.black54),
+                  style: const TextStyle(fontSize: 16, color: Colors.grey), // Grey text
                 ),
                 const SizedBox(height: 16),
 
@@ -97,7 +97,7 @@ class VehicleDetailPage extends StatelessWidget {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
+                    backgroundColor: Colors.tealAccent, // Button color
                     padding: const EdgeInsets.symmetric(vertical: 15),
                     textStyle: const TextStyle(fontSize: 16),
                   ),
@@ -108,7 +108,7 @@ class VehicleDetailPage extends StatelessWidget {
           );
         },
       ),
-      backgroundColor: Colors.white, // Light mode background
+      backgroundColor: Colors.black, // Dark mode background
     );
   }
 }
