@@ -27,7 +27,7 @@ class MyHomePage extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      'Welcome to Desai Rentals',
+                      'Welcome to AutoLux',
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
